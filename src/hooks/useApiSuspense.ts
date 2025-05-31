@@ -1,14 +1,21 @@
 import { use, useMemo } from 'react';
-import type { SearchResult, SearchParams } from '../types';
+import type { Joke, SearchParams } from '../types';
 import { ApiService } from '../services/api';
 
 // Promise cache for avoiding duplicate requests
-const promiseCache = new Map<string, Promise<SearchResult[]>>();
+const promiseCache = new Map<string, Promise<Joke>>();
+const errorCache = new Map<string, Error>();
 
 // Promiseを作成する関数
-function createSearchPromise(params: SearchParams): Promise<SearchResult[]> {
+function createJokePromise(params: SearchParams): Promise<Joke> {
   // Create cache key
-  const cacheKey = `${params.type}:${params.value}`;
+  const cacheKey = `joke:${params.id}`;
+  
+  // Check if we have a cached error for this request
+  if (errorCache.has(cacheKey)) {
+    console.log('❌ Throwing cached error for:', cacheKey);
+    throw errorCache.get(cacheKey);
+  }
   
   // Return cached promise if exists
   if (promiseCache.has(cacheKey)) {
@@ -18,33 +25,44 @@ function createSearchPromise(params: SearchParams): Promise<SearchResult[]> {
   
   console.log('🆕 Creating new promise for:', cacheKey);
   
-  let promise: Promise<SearchResult[]>;
-  
-  if (params.type === 'id' && params.value) {
-    promise = ApiService.getById(params.value).then(response => response.results);
-  } else if (params.type === 'name' && params.value) {
-    promise = ApiService.search(params).then(response => response.results);
-  } else {
-    promise = Promise.resolve([]);
-  }
+  const promise = ApiService.getJokeById(params.id)
+    .then((result) => {
+      console.log('✅ Promise resolved for:', cacheKey);
+      return result;
+    })
+    .catch((error) => {
+      console.log('❌ Promise rejected for:', cacheKey, error);
+      // Remove from promise cache but keep error cache
+      promiseCache.delete(cacheKey);
+      // Cache the error to prevent infinite retries
+      errorCache.set(cacheKey, error);
+      throw error;
+    });
   
   // Cache the promise
   promiseCache.set(cacheKey, promise);
   
-  // Remove from cache on error to allow retry
-  promise.catch(() => {
-    promiseCache.delete(cacheKey);
-  });
-  
   return promise;
 }
 
+// エラーキャッシュをクリアする関数
+export function clearErrorCache(jokeId?: string) {
+  if (jokeId) {
+    const cacheKey = `joke:${jokeId}`;
+    errorCache.delete(cacheKey);
+    promiseCache.delete(cacheKey);
+  } else {
+    errorCache.clear();
+    promiseCache.clear();
+  }
+}
+
 // Suspense用のデータフェッチフック
-export function useApiSuspense(params: SearchParams): SearchResult[] {
+export function useApiSuspense(params: SearchParams): Joke {
   // PromiseをuseMemoでキャッシュして無限ループを防ぐ
   const promise = useMemo(() => {
-    return createSearchPromise(params);
-  }, [params.type, params.value]);
+    return createJokePromise(params);
+  }, [params.id]);
   
   // React 19のuse()フックでPromiseを処理
   return use(promise);

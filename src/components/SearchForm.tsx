@@ -1,73 +1,52 @@
 import React, { useState } from 'react';
-import type { SearchType, SearchParams } from '../types';
-import { SEARCH_TYPES } from '../utils/constants';
+import type { SearchParams } from '../types';
 
 interface SearchFormProps {
   onSearch: (params: SearchParams) => void;
   loading?: boolean;
 }
 
-export const SearchForm: React.FC<SearchFormProps> = ({ onSearch, loading = false }) => {
-  const [idValue, setIdValue] = useState('');
-  const [nameValue, setNameValue] = useState('');
+const SearchForm: React.FC<SearchFormProps> = ({ onSearch, loading = false }) => {
+  const [jokeId, setJokeId] = useState('');
 
-  const handleSubmit = (type: SearchType, value: string) => {
-    if (!value.trim()) return;
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!jokeId.trim()) return;
     
-    onSearch({ type, value: value.trim() });
+    onSearch({ id: jokeId.trim() });
   };
 
   return (
     <div className="search-form">
       <div className="search-section">
-        <h3>Search by ID</h3>
-        <div className="search-input-group">
-          <input
-            type="text"
-            value={idValue}
-            onChange={(e) => setIdValue(e.target.value)}
-            placeholder="Enter ID to search..."
-            disabled={loading}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSubmit(SEARCH_TYPES.ID, idValue);
-              }
-            }}
-          />
-          <button
-            onClick={() => handleSubmit(SEARCH_TYPES.ID, idValue)}
-            disabled={!idValue.trim() || loading}
-            className="search-button"
-          >
-            {loading ? 'Searching...' : 'Search by ID'}
-          </button>
-        </div>
-      </div>
-
-      <div className="search-section">
-        <h3>Search by Name</h3>
-        <div className="search-input-group">
-          <input
-            type="text"
-            value={nameValue}
-            onChange={(e) => setNameValue(e.target.value)}
-            placeholder="Enter name to search..."
-            disabled={loading}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                handleSubmit(SEARCH_TYPES.NAME, nameValue);
-              }
-            }}
-          />
-          <button
-            onClick={() => handleSubmit(SEARCH_TYPES.NAME, nameValue)}
-            disabled={!nameValue.trim() || loading}
-            className="search-button"
-          >
-            {loading ? 'Searching...' : 'Search by Name'}
-          </button>
-        </div>
+        <h3>Search for a Joke by ID</h3>
+        <form onSubmit={handleSubmit}>
+          <div className="search-input-group">
+            <input
+              type="number"
+              value={jokeId}
+              onChange={(e) => setJokeId(e.target.value)}
+              placeholder="Enter joke ID (e.g., 1, 2, 3...)"
+              disabled={loading}
+              min="1"
+              required
+            />
+            <button 
+              type="submit" 
+              className="search-button"
+              disabled={loading || !jokeId.trim()}
+            >
+              {loading ? 'Searching...' : 'Find Joke'}
+            </button>
+          </div>
+        </form>
+        <p className="search-hint">
+          Enter a joke ID to find a random joke from the collection.
+        </p>
       </div>
     </div>
   );
 };
+
+export { SearchForm };
+export default SearchForm;

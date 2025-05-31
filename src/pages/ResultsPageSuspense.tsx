@@ -1,56 +1,84 @@
 import { Suspense, useMemo } from 'react';
 import { useSearchParams } from 'react-router';
-import { useApiSuspense } from '../hooks/useApiSuspense';
-import { ResultItem } from '../components/ResultItem';
+import { useApiSuspense, clearErrorCache } from '../hooks/useApiSuspense';
+import JokeItem from '../components/JokeItem';
 import { ErrorBoundary } from '../components/ErrorBoundary';
 import type { SearchParams } from '../types';
 
+// カスタムエラーコンポーネント
+function JokeErrorFallback({ error, retry }: { error: Error; retry: () => void }) {
+  const [searchParams] = useSearchParams();
+  const jokeId = searchParams.get('id') || '';
+
+  const handleRetry = () => {
+    // エラーキャッシュをクリアしてリトライ
+    clearErrorCache(jokeId);
+    retry();
+  };
+
+  return (
+    <div className="error-container">
+      <h2>Oops! Couldn't find that joke</h2>
+      <p className="error-message">
+        {error.message.includes('404') || error.message.includes('not found') 
+          ? `Joke with ID "${jokeId}" was not found. Try a different ID!`
+          : `Failed to load joke: ${error.message}`
+        }
+      </p>
+      
+      <div className="error-actions">
+        <button onClick={handleRetry} className="retry-button">
+          Try Again
+        </button>
+        <a href="/" className="home-button">
+          Search Another Joke
+        </a>
+      </div>
+      
+      <details className="error-details">
+        <summary>Technical Details</summary>
+        <pre>{error.stack}</pre>
+      </details>
+    </div>
+  );
+}
+
 // Suspense内で実行されるコンポーネント
-function ResultsContent() {
+function JokeContent() {
   const [searchParams] = useSearchParams();
   
   // SearchParamsオブジェクトをuseMemoでキャッシュ
   const params: SearchParams = useMemo(() => ({
-    type: (searchParams.get('type') as 'id' | 'name') || 'name',
-    value: searchParams.get('query') || ''
+    id: searchParams.get('id') || ''
   }), [searchParams]);
 
   console.log('🔍 Search params:', params);
 
-  if (!params.value) {
+  if (!params.id) {
     return (
       <div className="no-results">
-        <p>検索クエリが見つかりません</p>
+        <p>Joke ID が見つかりません</p>
       </div>
     );
   }
 
   // use()フックでデータを取得（Suspenseで処理される）
-  const results = useApiSuspense(params);
+  const joke = useApiSuspense(params);
 
   return (
     <div className="results-container">
-      <h2>検索結果</h2>
-      <p>検索タイプ: {params.type}, クエリ: "{params.value}"</p>
+      <h2>Joke Found!</h2>
+      <p>Joke ID: {params.id}</p>
       
-      {results.length === 0 ? (
-        <div className="no-results">
-          <h2>検索結果が見つかりませんでした</h2>
-          <p>
-            「<strong>{params.value}</strong>」で{params.type === 'id' ? 'ID' : '名前'}検索した結果、該当するアイテムが見つかりませんでした。
-          </p>
-          <p>別の検索条件をお試しください。</p>
-          <a href="/" className="retry-button">
-            新しい検索を行う
-          </a>
-        </div>
-      ) : (
-        <div className="results-list">
-          {results.map((result) => (
-            <ResultItem key={result.id} result={result} />
-          ))}
-        </div>
-      )}
+      <div className="joke-display">
+        <JokeItem joke={joke} />
+      </div>
+      
+      <div className="actions">
+        <a href="/" className="retry-button">
+          Find Another Joke
+        </a>
+      </div>
     </div>
   );
 }
@@ -59,16 +87,16 @@ function ResultsContent() {
 export function ResultsPageSuspense() {
   return (
     <div className="results-page">
-      <ErrorBoundary>
+      <ErrorBoundary fallback={JokeErrorFallback}>
         <Suspense 
           fallback={
             <div className="loading-container">
               <div className="loading-spinner"></div>
-              <p>データを読み込み中...</p>
+              <p>Looking for that joke...</p>
             </div>
           }
         >
-          <ResultsContent />
+          <JokeContent />
         </Suspense>
       </ErrorBoundary>
     </div>

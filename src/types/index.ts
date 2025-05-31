@@ -1,27 +1,17 @@
-// API response types
-export interface SearchResult {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: string;
-  [key: string]: any; // Allow additional properties
-}
-
-export interface ApiResponse {
-  results: SearchResult[];
-  total?: number;
-  page?: number;
+// Joke API response types
+export interface Joke {
+  id: number;
+  type: string;
+  setup: string;
+  punchline: string;
 }
 
 // Search types
-export type SearchType = 'id' | 'name';
-
 export interface SearchParams {
-  type: SearchType;
-  value: string;
+  id: string;
 }
 
-// API error type
+// Error types
 export interface ApiError {
   message: string;
   status?: number;
