@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import type { SearchParams } from '../types';
 
 interface SearchFormProps {
-  onSearch: (params: SearchParams) => void;
+  onSearch: (jokeId: string) => void;
   loading?: boolean;
 }
 
@@ -13,7 +12,7 @@ const SearchForm: React.FC<SearchFormProps> = ({ onSearch, loading = false }) =>
     e.preventDefault();
     if (!jokeId.trim()) return;
     
-    onSearch({ id: jokeId.trim() });
+    onSearch(jokeId.trim());
   };
 
   return (

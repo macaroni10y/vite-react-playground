@@ -1,18 +1,13 @@
 import React from 'react';
 import { useNavigate } from 'react-router';
 import SearchForm from '../components/SearchForm';
-import type { SearchParams } from '../types';
 
 export const HomePage: React.FC = () => {
   const navigate = useNavigate();
 
-  const handleSearch = (params: SearchParams) => {
-    // Navigate to results page with search parameters
-    const searchParams = new URLSearchParams({
-      id: params.id,
-    });
-    
-    navigate(`/results-suspense?${searchParams.toString()}`);
+  const handleSearch = (jokeId: string) => {
+    // Navigate to results page with joke ID
+    navigate(`/results-suspense?id=${jokeId}`);
   };
 
   return (

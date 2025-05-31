@@ -6,11 +6,6 @@ export interface Joke {
   punchline: string;
 }
 
-// Search types
-export interface SearchParams {
-  id: string;
-}
-
 // Error types
 export interface ApiError {
   message: string;
