@@ -1,54 +1,115 @@
-# React + TypeScript + Vite
+# Search Application
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A modern React application built with Vite, TypeScript, and React Router v7 for searching and displaying data from external REST APIs.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- 🔍 **Multi-type Search**: Search by ID or Name
+- 🎨 **Modern UI**: Beautiful, responsive design with gradient backgrounds
+- ⚡ **Fast Development**: Powered by Vite for instant hot module replacement
+- 🔄 **Client-side Routing**: Smooth navigation with React Router v7
+- 📱 **Responsive Design**: Works on desktop and mobile devices
+- 🛠️ **TypeScript**: Full type safety and IntelliSense support
+- 🧪 **Mock Data**: Built-in mock data for development and testing
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- **Frontend Framework**: React 19.1.0
+- **Build Tool**: Vite 6.3.5
+- **Language**: TypeScript 5.8.3
+- **Routing**: React Router v7
+- **HTTP Client**: Axios
+- **Styling**: CSS with modern features
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+## Project Structure
+
+```
+src/
+├── components/          # Reusable UI components
+│   ├── SearchForm.tsx   # Search form with ID and Name inputs
+│   └── ResultItem.tsx   # Individual search result display
+├── pages/               # Page components
+│   ├── HomePage.tsx     # Main search page
+│   └── ResultsPage.tsx  # Search results display
+├── services/            # API communication
+│   └── api.ts           # API service with mock data support
+├── hooks/               # Custom React hooks
+│   └── useApi.ts        # API state management hook
+├── types/               # TypeScript type definitions
+│   └── index.ts         # Shared types and interfaces
+└── utils/               # Utility functions and constants
+    ├── constants.ts     # App constants and configuration
+    └── mockData.ts      # Mock data for development
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Quick Start
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+1. **Install dependencies**:
+   ```bash
+   npm install
+   ```
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
+2. **Start development server**:
+   ```bash
+   npm run dev
+   ```
+
+3. **Open your browser** and navigate to `http://localhost:5173`
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm run build` - Build for production
+- `npm run preview` - Preview production build
+- `npm run lint` - Run ESLint
+
+## API Configuration
+
+The application is configured to work with external REST APIs. 
+
+### API Endpoints
+
+- **Search**: `GET /search?type={id|name}&value={searchValue}`
+
+### Mock Data
+
+In development mode, the application uses mock data to simulate API responses. This allows you to test the functionality without a real backend.
+
+To disable mock data and use real API calls, update the `USE_MOCK_DATA` constant in `src/utils/constants.ts`.
+
+### Production API
+
+For production, update the `API_BASE_URL` in `src/utils/constants.ts` to point to your actual API endpoint.
+
+## Usage
+
+1. **Home Page**: Enter a search term in either the ID or Name search field
+2. **Search**: Click the respective search button to execute the search
+3. **Results**: View results on the dedicated results page
+4. **Navigation**: Use the "Back to Search" button to return to the home page
+
+## Development
+
+The application includes several development features:
+
+- **Hot Module Replacement**: Changes reflect instantly during development
+- **TypeScript**: Full type checking and IntelliSense support
+- **ESLint**: Code quality and consistency checks
+- **Mock API**: Built-in mock data for testing without backend
+
+## Deployment
+
+This is a Single Page Application (SPA) designed for static hosting services like:
+
+- Netlify
+- Vercel
+- AWS S3 + CloudFront
+- GitHub Pages
+
+Build the application for production:
+
+```bash
+npm run build
 ```
+
+The built files will be in the `dist/` directory, ready for deployment.
