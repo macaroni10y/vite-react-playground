@@ -12,27 +12,42 @@ const apiClient = axios.create({
   },
 });
 
-// API service class
-export class ApiService {
-  /**
-   * Get joke by ID
-   */
-  static async getJokeById(id: string): Promise<Joke> {
-    try {
-      const response: AxiosResponse<Joke> = await apiClient.get(`/jokes/${id}`);
-      return response.data;
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        const apiError: ApiError = {
-          message: error.response?.data?.message || error.message || 'Joke not found',
-          status: error.response?.status,
-        };
-        throw apiError;
-      }
-      
-      throw new Error('Unknown error occurred');
+/**
+ * Get joke by ID
+ */
+export const getJokeById = async (id: string): Promise<Joke> => {
+  try {
+    const response: AxiosResponse<Joke> = await apiClient.get(`/jokes/${id}`);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const apiError: ApiError = {
+        message: error.response?.data?.message || error.message || 'Joke not found',
+        status: error.response?.status,
+      };
+      throw apiError;
     }
+    
+    throw new Error('Unknown error occurred');
   }
-}
+};
 
-export default ApiService;
+/**
+ * Get all jokes (maximum 10)
+ */
+export const getAllJokes = async (): Promise<Joke[]> => {
+  try {
+    const response: AxiosResponse<Joke[]> = await apiClient.get('/jokes/ten');
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      const apiError: ApiError = {
+        message: error.response?.data?.message || error.message || 'Failed to fetch jokes',
+        status: error.response?.status,
+      };
+      throw apiError;
+    }
+    
+    throw new Error('Unknown error occurred');
+  }
+};

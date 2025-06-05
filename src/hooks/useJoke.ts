@@ -1,6 +1,6 @@
 import useSWR from 'swr';
 import type { Joke } from '../types';
-import { ApiService } from '../services/api';
+import { getJokeById, getAllJokes } from '../services/api';
 
 /**
  * ジョーク取得用のSWRフック（Suspenseサポート）
@@ -10,7 +10,7 @@ import { ApiService } from '../services/api';
 export function useJoke(jokeId: string | null) {
   return useSWR(
     jokeId ? `joke:${jokeId}` : null,
-    () => ApiService.getJokeById(jokeId!),
+    () => getJokeById(jokeId!),
     {
       suspense: true,
       revalidateOnFocus: false,
@@ -28,7 +28,7 @@ export function useJoke(jokeId: string | null) {
 export function useJokeWithStates(jokeId: string | null) {
   return useSWR(
     jokeId ? `joke:${jokeId}` : null,
-    () => ApiService.getJokeById(jokeId!),
+    () => getJokeById(jokeId!),
     {
       suspense: false,
       revalidateOnFocus: false,
@@ -46,4 +46,37 @@ export function useJokeData(jokeId: string | null): Joke {
   const { data } = useJoke(jokeId);
   // Suspenseモードでは data は必ず存在
   return data!;
+}
+
+/**
+ * 全ジョーク取得用のSWRフック（Suspenseサポート）
+ * @returns SWRの戻り値（data, error, mutate など）
+ */
+export function useAllJokes() {
+  return useSWR(
+    'jokes:all',
+    () => getAllJokes(),
+    {
+      suspense: true,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      shouldRetryOnError: false,
+    }
+  );
+}
+
+/**
+ * 全ジョーク取得用のSWRフック（非Suspense版）
+ */
+export function useAllJokesWithStates() {
+  return useSWR(
+    'jokes:all',
+    () => getAllJokes(),
+    {
+      suspense: false,
+      revalidateOnFocus: false,
+      revalidateOnReconnect: false,
+      shouldRetryOnError: false,
+    }
+  );
 }
