@@ -1,5 +1,5 @@
 // API configuration
-export const API_BASE_URL = 'http://localhost:3005';
+export const API_BASE_URL = 'https://official-joke-api.appspot.com';
 
 // Routes
 export const ROUTES = {
